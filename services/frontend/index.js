@@ -52,12 +52,37 @@ function calculateShipping(id, cep) {
         });
 }
 
-document.getElementsById('consultar-livro').addEventListener('click', function() {
-    const num = document.getElementById("num-livro").value
-    fetch('http://localhost:3000/product/' + num)
+document.getElementById('consultar-livro').addEventListener('click', function () {
+    const numero = document.getElementById("numero-livro").value;
+
+    fetch('http://localhost:3000/product/' + numero)
+    .then((response) => {
+        if (!response.ok) {
+            throw new Error("Erro HTTP: " + response.status);
+        }
+        return response.json();
+    })
     .then((data) => {
-        const dataFormatada = JSON.parse(data);
-        console.log(dataFormatada)
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        swal({
+            title: "Livro encontrado",
+            icon: "success",
+            content: {
+                element: "div",
+                attributes: {
+                    innerHTML: `
+                        <b>${data.name}</b><br><br>
+                        <b>Autor:</b> ${data.author}<br>
+                        <b>Preço:</b> R$ ${data.price.toFixed(2)}<br>
+                        <b>Quantidade disponível:</b> ${data.quantity}
+                    `
+                }
+            }
+        });
+
     })
     .catch((err) => {
         swal('Erro', 'Erro ao buscar livro', 'error');
